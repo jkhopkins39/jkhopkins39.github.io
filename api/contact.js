@@ -4,6 +4,7 @@ import { getIntakeRecipients } from './_lib/intakeEmail.js';
 import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
 import { getClientMeta } from './_lib/clientMeta.js';
 import { validateEmail, validatePhone } from './_lib/validateContact.js';
+import { prefilter, hasMildProfanity } from './_lib/contentFilter.js';
 import { screenSubmission } from './_lib/screenSubmission.js';
 
 export const config = { runtime: 'edge' };
@@ -175,17 +176,29 @@ export default async function handler(req) {
     budget: budget ? String(budget).slice(0, 120) : null,
   };
 
-  // ── Screening agent ──────────────────────────────────────────────────
-  const screening = await screenSubmission(
-    { ...submission, problem: String(problem).trim() },
-    {
-      emailOk: emailCheck.value ? true : null,
-      phoneOk: phoneCheck.value ? true : null,
-      geo: meta.geo,
-      priorSubmissions: activity?.count ?? 0,
-      fromQuote: Boolean(include_design_team),
-    },
-  );
+  // ── Screening ────────────────────────────────────────────────────────
+  // The deterministic filter runs first: it needs no network call, so blatant
+  // trolling is still caught when the model is rate-limited or unavailable.
+  const forScreening = { ...submission, problem: String(problem).trim() };
+  const blocked = prefilter(forScreening);
+
+  const screening = blocked
+    ? {
+        decision: 'reject',
+        category: blocked.category,
+        confidence: 100,
+        reason: blocked.reason,
+        screened: true,
+        prefiltered: blocked.matched,
+      }
+    : await screenSubmission(forScreening, {
+        emailOk: emailCheck.value ? true : null,
+        phoneOk: phoneCheck.value ? true : null,
+        geo: meta.geo,
+        priorSubmissions: activity?.count ?? 0,
+        fromQuote: Boolean(include_design_team),
+        mildProfanity: hasMildProfanity(forScreening),
+      });
 
   // Everything is stored, including rejections, so false positives are recoverable.
   const row = {
@@ -202,6 +215,7 @@ export default async function handler(req) {
       email: emailCheck.checks,
       phone: phoneCheck.checks,
       screened: screening.screened,
+      prefiltered: screening.prefiltered ?? null,
       is_sales_pitch: screening.isSalesPitch ?? false,
       include_design_team: Boolean(include_design_team),
     },

@@ -13,7 +13,15 @@
 import { GoogleGenAI } from '@google/genai';
 
 const MODEL = 'gemini-3.5-flash-lite';
-const TIMEOUT_MS = 8000;
+/**
+ * Free-tier quota is metered per model, so a 429 on the primary is retried on
+ * a different model rather than waiting out the ~13s window Google suggests.
+ * (The 2.5 line is deliberately absent — it is no longer served to new
+ * projects and returns 404.)
+ */
+const FALLBACK_MODELS = ['gemini-3.1-flash-lite', 'gemini-3.5-flash'];
+const ATTEMPT_TIMEOUT_MS = 7000;
+const TOTAL_BUDGET_MS = 16000;
 const MAX_OUTPUT_TOKENS = 512;
 
 const CATEGORIES = [
@@ -107,6 +115,8 @@ function buildPrompt(submission, signals) {
     field('Approximate location from IP', signals.geo),
     field('Prior submissions from this IP in the last hour', String(signals.priorSubmissions ?? 0)),
     field('Came from the quote calculator', String(Boolean(signals.fromQuote))),
+    field('Contains profanity (judge tone in context — a frustrated customer is still a customer)',
+      String(Boolean(signals.mildProfanity))),
   ].join('\n');
 
   return `Screen this contact-form submission.
@@ -148,6 +158,20 @@ const PASS = (category, reason) => ({
   reason,
   screened: false,
 });
+
+/**
+ * No verdict could be obtained. The submission is still delivered — an outage
+ * must not cost a real lead — but it is flagged rather than passed off as
+ * clean, and the deterministic pre-filter has already removed blatant junk.
+ */
+const HOLD = (reason) => ({
+  decision: 'review',
+  category: 'unscreened',
+  confidence: 0,
+  reason,
+  screened: false,
+});
+
 
 /** Pull the verdict out of a response, tolerating stray prose around the JSON. */
 function parseVerdict(text) {
@@ -195,40 +219,57 @@ export async function screenSubmission(submission, signals = {}) {
     return PASS('brief_but_plausible', 'Contact details only — nothing to screen.');
   }
 
-  try {
-    const response = await ai.models.generateContent({
-      model: MODEL,
-      contents: [{ role: 'user', parts: [{ text: buildPrompt(submission, signals) }] }],
-      config: {
-        systemInstruction: SYSTEM_PROMPT,
-        responseMimeType: 'application/json',
-        responseJsonSchema: VERDICT_SCHEMA,
-        maxOutputTokens: MAX_OUTPUT_TOKENS,
-        thinkingConfig: { thinkingLevel: 'MINIMAL' },
-        abortSignal: AbortSignal.timeout(TIMEOUT_MS),
-      },
-    });
+  const prompt = buildPrompt(submission, signals);
+  const deadline = Date.now() + TOTAL_BUDGET_MS;
+  const attempts = [MODEL, ...FALLBACK_MODELS];
+  let lastError = null;
 
-    // Gemini's own safety filters can block the content before we classify it.
-    // That is strong evidence of abuse, but it also misfires on legitimate
-    // security-related inquiries — so flag for a human rather than reject.
+  for (const model of attempts) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 500) break;
+
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+          responseMimeType: 'application/json',
+          responseJsonSchema: VERDICT_SCHEMA,
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+          thinkingConfig: { thinkingLevel: 'MINIMAL' },
+          abortSignal: AbortSignal.timeout(Math.min(ATTEMPT_TIMEOUT_MS, remaining)),
+        },
+      });
+    } catch (err) {
+      // Always advance to the next model. A model that is rate-limited,
+      // retired, or erroring must never end the chain on its own.
+      lastError = err;
+      console.warn(`Screening on ${model} failed, trying next model:`, String(err?.message ?? err).slice(0, 140));
+      continue;
+    }
+
+    // Gemini's own safety filters can refuse to process the content at all.
+    // For a business contact form that is itself the verdict: legitimate
+    // inquiries — including security work — do not trip these.
     const blockReason = response.promptFeedback?.blockReason;
     const finishReason = response.candidates?.[0]?.finishReason;
     if (blockReason || BLOCKED_FINISH_REASONS.has(finishReason)) {
       return {
-        decision: 'review',
-        category: 'blocked_content',
-        confidence: 0,
-        reason: `Blocked by content filters (${blockReason ?? finishReason}).`,
+        decision: 'reject',
+        category: 'troll_or_abusive',
+        confidence: 100,
+        reason: `Content blocked by safety filters (${blockReason ?? finishReason}).`,
         screened: true,
       };
     }
 
-    const text = response.text;
-    if (!text) return PASS('unscreened', 'Screening returned no verdict.');
-
-    const verdict = parseVerdict(text);
-    if (!verdict) return PASS('unscreened', 'Screening returned an unreadable verdict.');
+    const verdict = response.text ? parseVerdict(response.text) : null;
+    if (!verdict) {
+      lastError = new Error('unreadable verdict');
+      continue;
+    }
 
     const category = CATEGORIES.includes(verdict.category) ? verdict.category : 'genuine_inquiry';
     const confidence = Math.max(0, Math.min(100, Number(verdict.confidence) || 0));
@@ -241,8 +282,8 @@ export async function screenSubmission(submission, signals = {}) {
       isSalesPitch: Boolean(verdict.is_sales_pitch),
       screened: true,
     };
-  } catch (err) {
-    console.error('Contact screening failed (accepting submission):', err?.message ?? err);
-    return PASS('unscreened', 'Screening unavailable.');
   }
+
+  console.error('Contact screening exhausted all models:', lastError?.message ?? lastError);
+  return HOLD('Screening unavailable — flagged for manual review.');
 }

@@ -112,7 +112,13 @@ Admin login uses **Supabase Auth** — do not store `USERNAME` / `PASSWORD` in V
    exchange, no reserved or fictional ranges, no filler digits). Set
    `ZEROBOUNCE_API_KEY` / `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN` to upgrade
    these to live mailbox and line-status checks.
-3. **Screening agent** — `gemini-3.5-flash-lite` (reusing `GEMINI_API_KEY`)
+3. **Deterministic content filter** (`api/_lib/contentFilter.js`) — a wordlist
+   pass over name/company/message that rejects explicit language, slurs, joke
+   aliases, laughter-only messages, and keyboard mashing in ~10ms with **no
+   network call**. This is the backstop that still works when the model is
+   rate-limited or down. Ordinary swearing is deliberately *not* blocked here —
+   a frustrated customer is still a customer — it is flagged and passed to the AI.
+4. **Screening agent** — `gemini-3.5-flash-lite` (reusing `GEMINI_API_KEY`)
    classifies the message and returns `accept` / `review` / `reject`. Rejections
    route the sender to `/sorry`; `review` still emails, flagged in the subject
    line. Set `CONTACT_SCREENING=off` to bypass. Every submission is stored either
@@ -121,9 +127,17 @@ Admin login uses **Supabase Auth** — do not store `USERNAME` / `PASSWORD` in V
 Only unambiguous junk — spam/solicitation, trolling, gibberish, form tests — is
 ever rejected, and only at ≥60% confidence. Small budgets, vague asks, typos, and
 non-native English are explicitly protected in the prompt and always get through.
+Content that Gemini's own safety filters refuse to process is rejected outright.
 
-All network checks **fail open** — if DNS or the Gemini API is unreachable, the
-submission is accepted rather than lost.
+**Free-tier rate limits.** Gemini free tier allows ~15 requests/min *per model*.
+On a 429 the screener automatically retries on `gemini-3.1-flash-lite`, then
+`gemini-3.5-flash` (separate quota buckets) within a 16-second budget. If every
+model fails, the submission is delivered but marked `review` — never silently
+passed off as clean. Enabling billing on the Google Cloud project removes the
+limit. Note the 2.5 model line is no longer served to new projects (404).
+
+DNS and provider lookups **fail open** — if they are unreachable the submission
+is accepted rather than lost, since the content filter and AI still apply.
 
 Request metadata (IP, user agent, referrer, IP-derived city/region) is stored with
 each submission. Run `supabase/migrations/20260727_contact_security.sql` in the
