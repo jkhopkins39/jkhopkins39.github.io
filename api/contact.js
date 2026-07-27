@@ -2,10 +2,22 @@ import { Resend } from 'resend';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
 import { getIntakeRecipients } from './_lib/intakeEmail.js';
 import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
+import { getClientMeta } from './_lib/clientMeta.js';
+import { validateEmail, validatePhone } from './_lib/validateContact.js';
+import { screenSubmission } from './_lib/screenSubmission.js';
 
 export const config = { runtime: 'edge' };
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Max submissions per IP per hour, and the minimum gap between two of them. */
+const MAX_PER_HOUR = Number(process.env.CONTACT_RATE_LIMIT_PER_HOUR ?? 5);
+const MIN_GAP_MS = 45_000;
+
+/** Columns added by 20260727_contact_security.sql — dropped if the migration hasn't run yet. */
+const SECURITY_COLUMNS = [
+  'ip_address', 'user_agent', 'referer', 'geo',
+  'screening_decision', 'screening_category', 'screening_confidence', 'screening_reason',
+  'validation',
+];
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -13,6 +25,55 @@ function escapeHtml(value) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function json(body, status, corsHeaders) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+/**
+ * Recent submissions from this IP. Returns null when the check can't run
+ * (no IP, or the security migration hasn't been applied) so we fail open.
+ */
+async function getRecentActivity(sb, ip) {
+  if (!ip) return null;
+
+  const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { data, error } = await sb
+    .from('contact_submissions')
+    .select('created_at')
+    .eq('ip_address', ip)
+    .gte('created_at', since)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (error) {
+    console.warn('IP rate-limit lookup skipped:', error.message);
+    return null;
+  }
+
+  const newest = data?.[0]?.created_at ? new Date(data[0].created_at).getTime() : null;
+  return { count: data?.length ?? 0, msSinceLast: newest ? Date.now() - newest : null };
+}
+
+/** Insert, retrying without the security columns if the migration hasn't been run. */
+async function insertSubmission(sb, row) {
+  const { data, error } = await sb.from('contact_submissions').insert(row).select('id').single();
+  if (!error) return { id: data?.id ?? null, degraded: false };
+
+  const missingColumn = error.code === 'PGRST204' || error.code === '42703';
+  if (!missingColumn) return { error };
+
+  console.warn('Security columns missing — run supabase/migrations/20260727_contact_security.sql');
+  const base = { ...row };
+  for (const column of SECURITY_COLUMNS) delete base[column];
+
+  const retry = await sb.from('contact_submissions').insert(base).select('id').single();
+  if (retry.error) return { error: retry.error };
+  return { id: retry.data?.id ?? null, degraded: true };
 }
 
 export default async function handler(req) {
@@ -28,9 +89,7 @@ export default async function handler(req) {
 
   const body = await req.json().catch(() => null);
   if (!body) {
-    return new Response(JSON.stringify({ success: false, message: 'Invalid request' }), {
-      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ success: false, message: 'Invalid request' }, 400, corsHeaders);
   }
 
   const {
@@ -47,80 +106,140 @@ export default async function handler(req) {
     contact_fax: honeypot2 = '',
   } = body;
 
+  // Bots fill the hidden fields — give them a success they can't learn from.
   if (honeypot1 || honeypot2) {
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ success: true }, 200, corsHeaders);
   }
 
-  const cleanEmail = String(email).trim().slice(0, 254);
-  const cleanPhone = String(phone).trim().slice(0, 40);
+  const meta = getClientMeta(req);
 
-  if (!cleanEmail && !cleanPhone) {
-    return new Response(JSON.stringify({ success: false, message: 'Please provide an email or phone number.' }), {
-      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  if (String(problem).length > 5000) {
+    return json({ success: false, message: 'Input too long.' }, 400, corsHeaders);
   }
 
-  if (cleanEmail && !EMAIL_RE.test(cleanEmail)) {
-    return new Response(JSON.stringify({ success: false, message: 'Invalid email address.' }), {
-      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  const rawEmail = String(email).trim().slice(0, 254);
+  const rawPhone = String(phone).trim().slice(0, 40);
+
+  if (!rawEmail && !rawPhone) {
+    return json({ success: false, message: 'Please provide an email or phone number.' }, 400, corsHeaders);
+  }
+
+  // ── Verify the contact details are real ──────────────────────────────
+  const [emailCheck, phoneCheck] = await Promise.all([
+    validateEmail(rawEmail, { ip: meta.ip }),
+    validatePhone(rawPhone),
+  ]);
+
+  if (!emailCheck.ok) {
+    return json({ success: false, field: 'email', message: emailCheck.message }, 400, corsHeaders);
+  }
+  if (!phoneCheck.ok) {
+    return json({ success: false, field: 'phone', message: phoneCheck.message }, 400, corsHeaders);
+  }
+
+  const sb = getSupabaseHoppyAdmin();
+  if (!sb) {
+    console.error('Supabase not configured for contact insert');
+    return json({ success: false, message: 'Submission storage is not configured.' }, 503, corsHeaders);
+  }
+
+  // ── Per-IP flood protection ──────────────────────────────────────────
+  const activity = await getRecentActivity(sb, meta.ip);
+
+  if (activity && activity.msSinceLast !== null && activity.msSinceLast < MIN_GAP_MS) {
+    return json(
+      { success: false, message: 'You just sent a message. Give it a moment before sending another.' },
+      429,
+      corsHeaders,
+    );
+  }
+
+  if (activity && activity.count >= MAX_PER_HOUR) {
+    return json(
+      { success: false, message: 'Too many submissions from this connection. Please email jeremy@hoppytech.com directly.' },
+      429,
+      corsHeaders,
+    );
   }
 
   const cleanProblem = String(problem).trim().slice(0, 5000) || 'No description provided.';
 
-  if (String(problem).length > 5000) {
-    return new Response(JSON.stringify({ success: false, message: 'Input too long.' }), {
-      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
   const submission = {
-    email: cleanEmail || null,
-    phone: cleanPhone || null,
-    name: name ? String(name).slice(0, 120) : null,
-    company: company ? String(company).slice(0, 120) : null,
+    email: emailCheck.value,
+    phone: phoneCheck.value ?? (rawPhone || null),
+    name: name ? String(name).trim().slice(0, 120) : null,
+    company: company ? String(company).trim().slice(0, 120) : null,
     project_type: project_type ? String(project_type).slice(0, 120) : null,
     problem: cleanProblem,
     timeline: timeline ? String(timeline).slice(0, 120) : null,
     budget: budget ? String(budget).slice(0, 120) : null,
   };
 
-  const sb = getSupabaseHoppyAdmin();
-  if (!sb) {
-    console.error('Supabase not configured for contact insert');
-    return new Response(JSON.stringify({ success: false, message: 'Submission storage is not configured.' }), {
-      status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  // ── Screening agent ──────────────────────────────────────────────────
+  const screening = await screenSubmission(
+    { ...submission, problem: String(problem).trim() },
+    {
+      emailOk: emailCheck.value ? true : null,
+      phoneOk: phoneCheck.value ? true : null,
+      geo: meta.geo,
+      priorSubmissions: activity?.count ?? 0,
+      fromQuote: Boolean(include_design_team),
+    },
+  );
+
+  // Everything is stored, including rejections, so false positives are recoverable.
+  const row = {
+    ...submission,
+    ip_address: meta.ip,
+    user_agent: meta.userAgent,
+    referer: meta.referer,
+    geo: meta.geo,
+    screening_decision: screening.decision,
+    screening_category: screening.category,
+    screening_confidence: screening.confidence,
+    screening_reason: screening.reason,
+    validation: {
+      email: emailCheck.checks,
+      phone: phoneCheck.checks,
+      screened: screening.screened,
+      is_sales_pitch: screening.isSalesPitch ?? false,
+      include_design_team: Boolean(include_design_team),
+    },
+  };
+
+  const inserted = await insertSubmission(sb, row);
+  if (inserted.error) {
+    console.error('Supabase insert error:', inserted.error);
+    return json({ success: false, message: 'Failed to save your submission. Please try again.' }, 500, corsHeaders);
   }
 
-  const { error: dbError } = await sb.from('contact_submissions').insert(submission);
-  if (dbError) {
-    console.error('Supabase insert error:', dbError);
-    return new Response(JSON.stringify({ success: false, message: 'Failed to save your submission. Please try again.' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  if (screening.decision === 'reject') {
+    console.warn(`Contact rejected [${screening.category}] from ${meta.ip ?? 'unknown IP'}: ${screening.reason}`);
+    return json(
+      { success: false, rejected: true, category: screening.category, message: screening.reason },
+      200,
+      corsHeaders,
+    );
   }
 
   if (!process.env.RESEND_API_KEY) {
     console.error('RESEND_API_KEY is not set');
-    return new Response(JSON.stringify({ success: false, message: 'Email service not configured.' }), {
-      status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ success: false, message: 'Email service not configured.' }, 503, corsHeaders);
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
-  const row = (label, value) =>
+  const row_ = (label, value) =>
     value ? `<tr>
       <td style="padding:8px 0;color:#6b7280;width:150px;vertical-align:top;font-size:13px;">${label}</td>
       <td style="padding:8px 0;color:#111827;font-size:14px;">${value}</td>
     </tr>` : '';
 
-  const contactLine = cleanEmail
-    ? `<strong>${escapeHtml(name || 'Anonymous')}</strong> &lt;${escapeHtml(cleanEmail)}&gt;`
-    : `<strong>${escapeHtml(name || 'Anonymous')}</strong> (phone only)`;
+  const contactLine = submission.email
+    ? `<strong>${escapeHtml(submission.name || 'Anonymous')}</strong> &lt;${escapeHtml(submission.email)}&gt;`
+    : `<strong>${escapeHtml(submission.name || 'Anonymous')}</strong> (phone only)`;
+
+  const flagged = screening.decision === 'review';
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;">
@@ -130,15 +249,23 @@ export default async function handler(req) {
         <div style="color:#7dd3fc;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;">New Project Inquiry</div>
       </div>
 
+      ${flagged ? `
+      <div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:14px 20px;">
+        <p style="margin:0;font-size:13px;color:#92400e;">
+          <strong>Flagged for review</strong> — ${escapeHtml(screening.category)} (${screening.confidence}% confidence).
+          ${escapeHtml(screening.reason)}
+        </p>
+      </div>` : ''}
+
       <div style="background:#f8fafc;padding:36px 32px;">
         <table style="width:100%;border-collapse:collapse;">
-          ${row('From', contactLine)}
-          ${row('Phone', cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}">${escapeHtml(cleanPhone)}</a>` : '')}
-          ${row('Company', escapeHtml(company))}
-          ${row('Project Type', escapeHtml(project_type))}
-          ${row('Timeline', escapeHtml(timeline))}
-          ${row('Budget', escapeHtml(budget))}
-          ${include_design_team ? row('Design services', 'Yes — visual design requested') : ''}
+          ${row_('From', contactLine)}
+          ${row_('Phone', submission.phone ? `<a href="tel:${escapeHtml(submission.phone)}">${escapeHtml(submission.phone)}</a>` : '')}
+          ${row_('Company', escapeHtml(submission.company))}
+          ${row_('Project Type', escapeHtml(submission.project_type))}
+          ${row_('Timeline', escapeHtml(submission.timeline))}
+          ${row_('Budget', escapeHtml(submission.budget))}
+          ${include_design_team ? row_('Design services', 'Yes — visual design requested') : ''}
         </table>
 
         <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb;">
@@ -146,6 +273,13 @@ export default async function handler(req) {
             What they need solved
           </p>
           <p style="margin:0;font-size:15px;line-height:1.7;color:#374151;white-space:pre-wrap;">${escapeHtml(cleanProblem)}</p>
+        </div>
+
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;">
+          <p style="margin:0;font-size:11px;color:#9ca3af;line-height:1.6;">
+            ${escapeHtml(meta.ip ?? 'IP unavailable')}${meta.geo ? ` · ${escapeHtml(meta.geo)}` : ''}
+            · screening: ${escapeHtml(screening.category)}
+          </p>
         </div>
       </div>
 
@@ -165,22 +299,18 @@ export default async function handler(req) {
     const sendPayload = {
       from,
       to,
-      subject: `New Project Inquiry${project_type ? ` — ${String(project_type).slice(0, 60)}` : ''}${name ? ` from ${String(name).slice(0, 40)}` : ''}${include_design_team ? ' [Design]' : ''}`,
+      subject: `${flagged ? '[Review] ' : ''}New Project Inquiry${project_type ? ` — ${String(project_type).slice(0, 60)}` : ''}${name ? ` from ${String(name).slice(0, 40)}` : ''}${include_design_team ? ' [Design]' : ''}`,
       html,
     };
-    if (cleanEmail) sendPayload.replyTo = cleanEmail;
+    if (submission.email) sendPayload.replyTo = submission.email;
 
     const { error: sendError } = await resend.emails.send(sendPayload);
 
     if (sendError) throw sendError;
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ success: true }, 200, corsHeaders);
   } catch (err) {
     console.error('Contact API error:', err);
-    return new Response(JSON.stringify({ success: false, message: 'Failed to send. Please email directly.' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ success: false, message: 'Failed to send. Please email directly.' }, 500, corsHeaders);
   }
 }

@@ -51,6 +51,22 @@ const sections: { title: string; body: React.ReactNode }[] = [
           with the name and contact details of the business you refer.
         </p>
         <p>
+          When you submit a form, we also record your{" "}
+          <strong className="text-ink font-medium">IP address</strong>, browser
+          user agent, referring page, and the approximate city or region derived
+          from that IP. We keep this alongside the submission to prevent spam and
+          abuse, and to have a record of where an inquiry came from.
+        </p>
+        <p>
+          Contact-form submissions are screened automatically before they reach
+          our inbox. This involves a basic validity check of the email address
+          and phone number you provide, and passing the message through an{" "}
+          <strong className="text-ink font-medium">AI model (Google Gemini)</strong>{" "}
+          that classifies it as a genuine inquiry or as spam. Submissions
+          identified as spam are not delivered. If yours is screened out in
+          error, email us directly and it will be read.
+        </p>
+        <p>
           We may also collect limited technical data (such as pages visited and
           approximate device or browser information) through analytics and
           advertising tools described below.
@@ -66,7 +82,10 @@ const sections: { title: string; body: React.ReactNode }[] = [
         <ul className="list-disc pl-5 space-y-2">
           <li>Respond to business inquiries and consultation requests</li>
           <li>Provide quotes and communicate about projects</li>
-          <li>Operate, improve, and secure our website</li>
+          <li>
+            Operate, improve, and secure our website — including screening form
+            submissions for spam and abuse
+          </li>
           <li>
             Measure advertising performance (for example, whether a Google Ads
             lead or call resulted in contact)
@@ -96,9 +115,9 @@ const sections: { title: string; body: React.ReactNode }[] = [
           storage), <strong className="text-ink font-medium">Resend</strong>{" "}
           (email delivery), <strong className="text-ink font-medium">Vercel</strong>{" "}
           (hosting and analytics), and{" "}
-          <strong className="text-ink font-medium">Anthropic</strong> (our AI
-          chat assistant provider). Those providers process data only as needed
-          to provide their services to us.
+          <strong className="text-ink font-medium">Google</strong> (the Gemini AI
+          models behind our chat assistant and form screening). Those providers
+          process data only as needed to provide their services to us.
         </p>
         <p>
           We may disclose information if required by law or to protect our

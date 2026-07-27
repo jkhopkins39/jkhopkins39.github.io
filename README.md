@@ -95,10 +95,39 @@ Add these environment variables in your Vercel project settings:
 - `SUPABASE_URL`: Same Supabase project URL
 - `SUPABASE_SERVICE_ROLE_KEY`: Supabase secret (service role) key
 - `ADMIN_EMAIL`: Admin email verified on API routes (e.g. `jeremy@hoppytech.com`)
-- `GEMINI_API_KEY`: Chatbot
+- `GEMINI_API_KEY`: Chatbot and contact-form screening agent
 - `GITHUB_TOKEN`: Authenticated blog publishing
 
 Admin login uses **Supabase Auth** — do not store `USERNAME` / `PASSWORD` in Vercel.
+
+## Contact-form screening
+
+`/api/contact` verifies and screens every submission before it reaches the inbox:
+
+1. **Honeypot + per-IP rate limit** — hidden fields, plus max `CONTACT_RATE_LIMIT_PER_HOUR`
+   (default 5) submissions per IP per hour and a 45-second minimum gap.
+2. **Contact verification** — email is checked for syntax, disposable/placeholder
+   domains, and a live DNS lookup proving the domain can receive mail; phone is
+   normalised to E.164 and checked against NANP rules (valid area code and
+   exchange, no reserved or fictional ranges, no filler digits). Set
+   `ZEROBOUNCE_API_KEY` / `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN` to upgrade
+   these to live mailbox and line-status checks.
+3. **Screening agent** — `gemini-3.5-flash-lite` (reusing `GEMINI_API_KEY`)
+   classifies the message and returns `accept` / `review` / `reject`. Rejections
+   route the sender to `/sorry`; `review` still emails, flagged in the subject
+   line. Set `CONTACT_SCREENING=off` to bypass. Every submission is stored either
+   way, so false positives are recoverable from the dashboard.
+
+Only unambiguous junk — spam/solicitation, trolling, gibberish, form tests — is
+ever rejected, and only at ≥60% confidence. Small budgets, vague asks, typos, and
+non-native English are explicitly protected in the prompt and always get through.
+
+All network checks **fail open** — if DNS or the Gemini API is unreachable, the
+submission is accepted rather than lost.
+
+Request metadata (IP, user agent, referrer, IP-derived city/region) is stored with
+each submission. Run `supabase/migrations/20260727_contact_security.sql` in the
+Supabase SQL editor to add the required columns.
 
 ### For Local Development
 Copy `.env.example` to `.env` and fill in values:

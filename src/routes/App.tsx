@@ -11,6 +11,7 @@ import Dashboard from "./Dashboard";
 import Portal from "./Portal";
 import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
+import Sorry from "./Sorry";
 import Refer from "./Refer";
 import Quote from "./Quote";
 import Privacy from "./Privacy";
@@ -366,6 +367,7 @@ function SiteLayout() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/thanks" element={<ThankYou />} />
+          <Route path="/sorry" element={<Sorry />} />
           <Route path="/ai-solutions" element={<Navigate to="/quote" replace />} />
           <Route path="/solutions" element={<Navigate to="/quote" replace />} />
           <Route path="/enterprise" element={<Navigate to="/quote" replace />} />

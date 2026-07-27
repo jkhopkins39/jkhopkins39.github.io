@@ -126,7 +126,18 @@ const Contact: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const result = await res.json().catch(() => ({})) as { success?: boolean; message?: string };
+      const result = await res.json().catch(() => ({})) as {
+        success?: boolean;
+        rejected?: boolean;
+        category?: string;
+        message?: string;
+      };
+
+      // Screened out as spam / trolling / nonsense — send them to /sorry, not an inline error.
+      if (result.rejected) {
+        navigate('/sorry', { state: { category: result.category } });
+        return;
+      }
 
       if (!res.ok || !result.success) {
         setSubmitError(result.message ?? 'Failed to send. Please email directly.');

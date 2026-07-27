@@ -11,6 +11,7 @@ import {
   fetchChatSessions,
   fetchSubmissions,
   isGoogleAdsLead,
+  screeningBadge,
   submissionLabel,
   submissionPreview,
   updateSubmissionRead,
@@ -284,6 +285,13 @@ const Dashboard: React.FC = () => {
                               Ads
                             </span>
                           )}
+                          {screeningBadge(sub) && (
+                            <span
+                              className={`ml-2 inline-block align-middle px-1.5 py-0.5 rounded text-[10px] font-bold ${screeningBadge(sub)!.className}`}
+                            >
+                              {screeningBadge(sub)!.label}
+                            </span>
+                          )}
                         </p>
                         <p className="text-[12px] text-muted-2 truncate mt-0.5">{submissionPreview(sub)}</p>
                         <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.created_at)}</p>
@@ -312,6 +320,13 @@ const Dashboard: React.FC = () => {
                                 Google Ads
                               </span>
                             )}
+                            {screeningBadge(selectedSubmission) && (
+                              <span
+                                className={`ml-2 inline-block align-middle px-1.5 py-0.5 rounded text-[10px] font-bold ${screeningBadge(selectedSubmission)!.className}`}
+                              >
+                                {screeningBadge(selectedSubmission)!.label}
+                              </span>
+                            )}
                           </p>
                           <p className="text-muted text-xs mt-0.5">{formatDate(selectedSubmission.created_at)}</p>
                           <div className="text-muted-2 text-xs mt-2 space-y-1">
@@ -322,6 +337,20 @@ const Dashboard: React.FC = () => {
                                 {[selectedSubmission.company, selectedSubmission.project_type, selectedSubmission.timeline, selectedSubmission.budget]
                                   .filter(Boolean)
                                   .join(' · ')}
+                              </p>
+                            )}
+                            {(selectedSubmission.ip_address || selectedSubmission.geo) && (
+                              <p className="text-muted-3">
+                                {[selectedSubmission.ip_address, selectedSubmission.geo].filter(Boolean).join(' · ')}
+                              </p>
+                            )}
+                            {selectedSubmission.screening_reason && (
+                              <p className="text-muted-3">
+                                Screening: {selectedSubmission.screening_category}
+                                {typeof selectedSubmission.screening_confidence === 'number'
+                                  ? ` (${selectedSubmission.screening_confidence}%)`
+                                  : ''}{' '}
+                                — {selectedSubmission.screening_reason}
                               </p>
                             )}
                           </div>

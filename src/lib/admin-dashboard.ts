@@ -15,6 +15,19 @@ export interface ContactSubmission {
   /** e.g. "google_ads" when ingested from Ads lead-form webhook */
   source?: string | null;
   google_lead_id?: string | null;
+
+  /** Request metadata — added by 20260727_contact_security.sql */
+  ip_address?: string | null;
+  user_agent?: string | null;
+  referer?: string | null;
+  geo?: string | null;
+
+  /** Verdict from the Gemini screening agent */
+  screening_decision?: 'accept' | 'review' | 'reject' | null;
+  screening_category?: string | null;
+  screening_confidence?: number | null;
+  screening_reason?: string | null;
+  validation?: Record<string, unknown> | null;
 }
 
 export interface ChatMessage {
@@ -89,6 +102,19 @@ export function submissionLabel(sub: ContactSubmission): string {
 
 export function submissionPreview(sub: ContactSubmission): string {
   return sub.problem?.trim() || 'No description provided.';
+}
+
+/** Badge for submissions the screening agent blocked or flagged. Null when clean. */
+export function screeningBadge(
+  sub: ContactSubmission,
+): { label: string; className: string } | null {
+  if (sub.screening_decision === 'reject') {
+    return { label: 'Blocked', className: 'bg-red-500/10 text-red-400' };
+  }
+  if (sub.screening_decision === 'review') {
+    return { label: 'Review', className: 'bg-amber-500/10 text-amber-400' };
+  }
+  return null;
 }
 
 export function isGoogleAdsLead(sub: ContactSubmission): boolean {
