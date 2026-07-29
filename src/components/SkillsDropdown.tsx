@@ -87,7 +87,7 @@ const SkillsDropdown: React.FC = () => {
                 >
                   <div className="flex items-center gap-2 mb-4">
                     <div
-                      className="h-[3px] w-6 flex-none"
+                      className="h-[3px] w-6 rounded-full flex-none"
                       style={{ background: group.accent }}
                     />
                     <span

@@ -3,27 +3,10 @@ export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      // One variable family. `display` and `sans` are the SAME face —
-      // the width axis (see --display-width in index.css), not a second
-      // typeface, carries the hierarchy.
       fontFamily: {
-        display: ['Archivo', 'system-ui', 'sans-serif'],
-        sans: ['Archivo', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-      },
-      // Exactly two radii. The whole `rounded-*` scale collapses onto
-      // them so existing markup lands on the system without a rewrite:
-      // 6px = controls, 14px = frames. `rounded-full` stays for circles.
-      borderRadius: {
-        none: '0px',
-        sm: '4px',
-        DEFAULT: 'var(--radius-control)',
-        md: 'var(--radius-control)',
-        lg: 'var(--radius-control)',
-        xl: 'var(--radius-control)',
-        '2xl': 'var(--radius-frame)',
-        '3xl': 'var(--radius-frame)',
-        full: '9999px',
+        display: ['"DM Serif Display"', 'Georgia', 'serif'],
+        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
         // CSS-variable-based tokens (theme-aware)

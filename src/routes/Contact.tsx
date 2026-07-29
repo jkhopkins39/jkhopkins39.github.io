@@ -152,8 +152,8 @@ const Contact: React.FC = () => {
     }
   };
 
-  const inputClass = 'w-full px-4 py-3.5 bg-surface-2 border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle transition-all text-sm';
-  const labelClass = 'block text-[13px] text-muted font-medium mb-2';
+  const inputClass = 'w-full px-4 py-3.5 bg-surface-2 border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle focus:bg-surface-3 transition-all text-sm';
+  const labelClass = 'block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2';
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
@@ -164,9 +164,21 @@ const Contact: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-[clamp(2rem,4.4vw,3.6rem)]">
-            Let's build something<br />
-            <span className="text-accent">efficient.</span>
+          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Start a Project</span>
+          <h1 className="mt-2 text-[clamp(2.2rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight">
+            Let's build something{' '}
+            <span
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontStyle: 'italic',
+                background: 'linear-gradient(135deg, var(--accent-light), var(--accent))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              efficient.
+            </span>
           </h1>
           <p className="mt-4 text-muted text-lg leading-relaxed max-w-xl">
             Tell us about your project challenges below. A few quick questions helps us understand your needs before we connect.
@@ -320,7 +332,7 @@ const Contact: React.FC = () => {
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] text-muted mb-0.5">Prefer email?</p>
+                <p className="text-[11px] uppercase tracking-widest text-muted mb-0.5">Prefer email?</p>
                 <p className="text-ink text-sm font-medium truncate group-hover:text-accent transition-colors">jeremy@hoppytech.com</p>
               </div>
               <svg className="w-4 h-4 text-muted group-hover:text-accent flex-none transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -330,7 +342,7 @@ const Contact: React.FC = () => {
 
             {/* Social links */}
             <div className="p-5 rounded-2xl border border-subtle bg-surface">
-              <h3 className="flex items-center gap-2 text-[14px] text-muted mb-4"><span className="marker-square" aria-hidden="true" />Connect</h3>
+              <h3 className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-4">Connect</h3>
               <div className="space-y-3">
                 {socials.map((social, i) => (
                   <motion.a

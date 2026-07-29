@@ -1,9 +1,5 @@
-/* ─── Fonts ──────────────────────────────────────────────────
-   Loaded once, in index.html (<link> + preconnect). Do not
-   re-@import here — a second request blocks CSS parsing.
-   Archivo = one variable family for display AND body.
-   JetBrains Mono = code-flavored surfaces only.
-   ─────────────────────────────────────────────────────────── */
+/* ─── Google Fonts ───────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -29,9 +25,7 @@
   --ink:             #FAF9F0;
   --muted:           #D1CDBC;
   --muted-2:         #AFA791;
-  /* Raised from #8F8A7C — placeholders sit on --surface-2 (#114A75),
-     where the old value was 2.7:1. */
-  --muted-3:         #BCB9AB;
+  --muted-3:         #8F8A7C;
   --accent:          #7AB2FC;
   --accent-light:    #B6DCFF;
   --accent-secondary:#FB8500;
@@ -41,30 +35,7 @@
   --surface-alpha:   rgba(250, 249, 240, 0.05);
   --surface-alpha-h: rgba(250, 249, 240, 0.09);
 
-  /* Accent used as TEXT / focus ring / marker. Fills stay #7AB2FC;
-     this is a hair lighter so it also clears 4.5:1 on --surface-2
-     (#114A75), where the raw accent only reaches 4.25:1. */
-  --accent-strong:           #8ABCFD;
-  --accent-light-strong:     #B6DCFF;
-  --accent-secondary-strong: #FB8500;
-
-  /* ── Type ───────────────────────────────────────────────
-     One family. Width, not typeface, carries the hierarchy. */
-  --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-
-  /* Display = Archivo pushed wide + heavy + tight */
-  --display-width:    125%;
-  --display-weight:   780;
-  --display-tracking: -0.028em;
-
-  /* ── Radii — exactly two ────────────────────────────────
-     6px on controls (buttons, inputs, chips), 14px on frames
-     (cards, panels, media). Pills only for true circles. */
-  --radius-control: 6px;
-  --radius-frame:   14px;
-
-  font-family: var(--font-sans);
+  font-family: 'DM Sans', system-ui, sans-serif;
   line-height: 1.6;
   font-weight: 400;
   color: var(--ink);
@@ -83,20 +54,12 @@
   --surface-3:       #EDE8DC;
   --ink:             #023047;
   --muted:           #0B3255;
-  /* muted-2 / muted-3 darkened from the old sand tints — the sands
-     sat at ~2.3:1 and ~1.8:1 on cream. These are navy-family greys
-     that clear 4.5:1 on both cream and white. */
-  --muted-2:         #4E6376;
-  --muted-3:         #64717E;
+  --muted-2:         #AFA791;
+  --muted-3:         #C4BEB0;
   --accent:          #7AB2FC;
   --accent-light:    #B6DCFF;
   --accent-secondary:#FB8500;
   --accent-foreground: #023047;
-  /* Sky blue is a 2.1:1 text colour on cream — darken it for text,
-     focus rings and markers while the fill stays the brand blue. */
-  --accent-strong:           #2A6FB8;
-  --accent-light-strong:     #2A6FB8;
-  --accent-secondary-strong: #A85400;
   --border-color:    rgba(2, 48, 71, 0.12);
   --border-hover:    rgba(2, 48, 71, 0.22);
   --surface-alpha:   rgba(2, 48, 71, 0.04);
@@ -110,36 +73,10 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* ─── Display type ───────────────────────────────────────────
-   No second typeface. Headings are Archivo run wide (wdth 125)
-   and heavy; body is Archivo at normal width. The width axis is
-   the whole idea, so it is set on the element selector — utility
-   classes can still override weight/size.
-   ─────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-sans);
-  font-stretch: var(--display-width);
-  font-weight: var(--display-weight);
-  letter-spacing: var(--display-tracking);
+  font-family: 'DM Serif Display', Georgia, serif;
   color: var(--ink);
-  line-height: 1.06;
-  text-wrap: balance;
-}
-
-/* Small headings read as label-ish, so ease off the extremes */
-h3, h4, h5, h6 {
-  --display-width: 112%;
-  --display-weight: 700;
-  --display-tracking: -0.014em;
-  line-height: 1.25;
-}
-
-/* Archivo is wide by nature; at ~380px the display cut needs slack */
-@media (max-width: 420px) {
-  h1, h2 {
-    --display-width: 112%;
-    --display-tracking: -0.022em;
-  }
+  line-height: 1.15;
 }
 
 /* ─── Tailwind utility layer ─────────────────────────────── */
@@ -191,6 +128,37 @@ h3, h4, h5, h6 {
     filter: drop-shadow(0 4px 14px rgba(2, 48, 71, 0.1));
   }
 
+  /* Hero wordmark + single-line tagline that scales with logo width */
+  .hero-brand-block {
+    container-type: inline-size;
+    width: 100%;
+    max-width: min(100%, 17.5rem);
+  }
+  @media (min-width: 640px) {
+    .hero-brand-block {
+      max-width: min(100%, 20rem);
+    }
+  }
+  .hero-tagline {
+    margin-top: 0.875rem;
+    white-space: nowrap;
+    font-size: clamp(0.75rem, 6.5cqi, 2.125rem);
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  /* Gradient text */
+  .text-gradient-amber {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   /* Noise texture */
   .noise-bg {
     position: relative;
@@ -204,98 +172,6 @@ h3, h4, h5, h6 {
     opacity: 0.4;
     z-index: 0;
   }
-}
-
-/* ─── Accent AS TEXT ─────────────────────────────────────────
-   Declared unlayered and last so it beats the generated colour
-   utilities. Sky blue is a fill, not a text colour: it is 6.3:1
-   on navy but only 2.1:1 on cream, so text/marker/ring uses use
-   the *-strong aliases, which the light theme darkens.
-   ─────────────────────────────────────────────────────────── */
-.text-accent            { color: var(--accent-strong); }
-.text-accent-light      { color: var(--accent-light-strong); }
-.text-accent-secondary  { color: var(--accent-secondary-strong); }
-.hover\:text-accent:hover { color: var(--accent-strong); }
-
-/* ─── Controls ───────────────────────────────────────────────
-   Two radii, no pills. Hover lives in CSS, not in React
-   onMouseEnter handlers.
-   ─────────────────────────────────────────────────────────── */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: var(--radius-control);
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
-}
-
-.btn--solid {
-  background-color: var(--accent);
-  color: var(--accent-foreground);
-}
-.btn--solid:hover {
-  background-color: var(--accent-light);
-}
-
-.btn--outline {
-  background-color: transparent;
-  color: var(--ink);
-  border-color: var(--border-color);
-  font-weight: 500;
-}
-.btn--outline:hover {
-  background-color: var(--surface-alpha);
-  border-color: var(--border-hover);
-}
-
-/* Bordered panel/card — 14px frame radius, border reacts on hover */
-.panel {
-  background-color: var(--surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-frame);
-}
-.panel--hover:hover {
-  border-color: var(--border-hover);
-}
-
-/* Small solid square marker. Replaces the mono uppercase eyebrow
-   and the tinted icon-tile. */
-.marker-square {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  flex: none;
-  background-color: var(--accent-strong);
-}
-.marker-square--secondary { background-color: var(--accent-secondary-strong); }
-
-/* Rule that heads an asymmetric service block */
-.service-rule {
-  display: block;
-  height: 2px;
-  width: 100%;
-  flex: none;
-  background-color: var(--accent-strong);
-}
-.service-rule--secondary { background-color: var(--accent-secondary-strong); }
-
-/* Icon-button / social chip */
-.chip-icon {
-  border-radius: var(--radius-control);
-  border: 1px solid var(--border-color);
-  background-color: var(--surface);
-  color: var(--muted);
-  transition: color 0.18s ease, border-color 0.18s ease;
-}
-.chip-icon:hover {
-  color: var(--accent-strong);
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────── */
@@ -321,7 +197,7 @@ a {
 
 /* ─── Focus ring ─────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--accent-strong);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 3px;
 }
@@ -425,7 +301,7 @@ a {
 .hero-showcase__viewport {
   width: 100%;
   height: var(--showcase-h);
-  border-radius: var(--radius-frame);
+  border-radius: 16px;
   outline: none;
   overflow: hidden;
   touch-action: none;
@@ -445,9 +321,8 @@ a {
   cursor: grabbing;
 }
 
-/* Solid, not a tint — a 55%-alpha ring only reached 2.2:1 on cream */
 .hero-showcase__viewport:focus-visible {
-  box-shadow: 0 0 0 2px var(--canvas), 0 0 0 4px var(--accent-strong);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
 .hero-showcase__track {
@@ -478,7 +353,7 @@ a {
 }
 
 .hero-showcase__frame {
-  border-radius: var(--radius-frame);
+  border-radius: 14px;
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border-color);
@@ -518,12 +393,9 @@ a {
   background: color-mix(in srgb, #22c55e 70%, var(--muted));
 }
 
-/* The one place JetBrains Mono earns its keep: a browser URL bar. */
 .hero-showcase__url {
   margin-left: 4px;
-  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: -0.01em;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -562,17 +434,18 @@ a {
   padding: 8px 16px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--accent-strong);
+  color: var(--accent);
   background: color-mix(in srgb, var(--accent) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
-  border-radius: var(--radius-control);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 999px;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .hero-showcase__view-btn:hover {
   background: color-mix(in srgb, var(--accent) 16%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 48%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 639px) {
@@ -649,20 +522,4 @@ body {
 
 .goog-te-gadget {
   font-size: 0 !important;
-}
-
-/* ─── Reduced motion ─────────────────────────────────────────
-   Last in the file so it outranks the per-component transition
-   overrides above. The showcase marquee also slows itself via
-   framer-motion's useReducedMotion.
-   ─────────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }

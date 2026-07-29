@@ -230,7 +230,10 @@ const Privacy: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h1 className="text-3xl md:text-4xl text-ink">
+          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">
+            Legal
+          </span>
+          <h1 className="mt-2 text-3xl md:text-4xl font-bold leading-[1.1] tracking-tight text-ink font-sans">
             Privacy Policy
           </h1>
           <p className="mt-2 text-muted-2 text-xs">Last updated: {LAST_UPDATED}</p>

@@ -79,13 +79,15 @@ const NavBar = () => {
 
   return (
     <>
-      {/* Solid canvas bar + hairline rule. No blur, no drop shadow —
-          the bar should read as an edge of the page, not a pane
-          floating over it. `scrolled` now only reveals the rule. */}
       <nav
-        className="fixed top-0 left-0 right-0 z-50 border-b bg-canvas"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "backdrop-blur-xl border-b shadow-xl shadow-black/20"
+            : "backdrop-blur-md"
+        }`}
         style={{
           height: "68px",
+          backgroundColor: scrolled ? "color-mix(in srgb, var(--canvas) 95%, transparent)" : "color-mix(in srgb, var(--canvas) 85%, transparent)",
           borderBottomColor: scrolled ? "var(--border-color)" : "transparent",
         }}
       >
@@ -123,7 +125,7 @@ const NavBar = () => {
               >
                 {link.label}
                 {isActive(link.path) && (
-                  <span className="absolute bottom-1 left-4 right-4 h-[2px] bg-accent" />
+                  <span className="absolute bottom-1 left-4 right-4 h-[2px] rounded-full bg-accent" />
                 )}
               </button>
             ))}
@@ -138,14 +140,25 @@ const NavBar = () => {
               >
                 Dashboard
                 {isActive("/dashboard") && (
-                  <span className="absolute bottom-1 left-4 right-4 h-[2px] bg-accent" />
+                  <span className="absolute bottom-1 left-4 right-4 h-[2px] rounded-full bg-accent" />
                 )}
               </button>
             )}
 
             <button
               onClick={() => handleNav(CONTACT_PATH)}
-              className="btn btn--solid ml-2 px-5 h-9 text-[14px]"
+              className="ml-2 px-5 py-2 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] text-[14px]"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "var(--accent-foreground)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                  "0 8px 30px color-mix(in srgb, var(--accent) 30%, transparent)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+              }}
             >
               Contact Me
             </button>
@@ -191,7 +204,7 @@ const NavBar = () => {
       {/* Mobile drawer backdrop */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsMenuOpen(false)}
         />
       )}
@@ -236,10 +249,7 @@ const NavBar = () => {
           {/* Drawer links */}
           <div className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
             <div className="px-4 pb-4">
-              <p className="flex items-center gap-2 text-[13px] text-muted font-medium mb-2">
-                <span className="marker-square" aria-hidden="true" />
-                Language
-              </p>
+              <p className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-2">Language</p>
               <LanguageToggle />
             </div>
             {NAV_LINKS.map((link) => (
@@ -290,7 +300,18 @@ const NavBar = () => {
             )}
             <button
               onClick={() => handleNav(CONTACT_PATH)}
-              className="btn btn--solid mt-3 w-full py-3.5 text-[15px]"
+              className="w-full py-3 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] text-[15px]"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "var(--accent-foreground)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                  "0 8px 30px color-mix(in srgb, var(--accent) 30%, transparent)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+              }}
             >
               Contact Me
             </button>

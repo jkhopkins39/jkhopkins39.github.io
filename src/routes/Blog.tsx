@@ -156,7 +156,7 @@ const Blog: React.FC = () => {
   };
 
   const inputClass = "w-full px-4 py-3 bg-canvas border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle transition-colors text-sm";
-  const labelClass = "block text-[13px] text-muted font-medium mb-2";
+  const labelClass = "block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2";
 
   const tagColors = isDark ? BLOG_TAG_STYLES_DARK : BLOG_TAG_STYLES_LIGHT;
 
@@ -212,8 +212,21 @@ const Blog: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-[clamp(2.1rem,5.2vw,3.9rem)] text-ink">
-            The Blog
+          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Latest thoughts</span>
+          <h1 className="mt-2 text-[clamp(2.4rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-tight">
+            The{' '}
+            <span
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontStyle: "italic",
+                background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Blog
+            </span>
           </h1>
           <p className="mt-3 text-muted text-lg leading-relaxed">
             Exploring the intersection of AI, code, and creativity.

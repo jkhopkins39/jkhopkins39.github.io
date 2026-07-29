@@ -119,8 +119,16 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   title={s.name}
-                  aria-label={s.name}
-                  className="chip-icon w-9 h-9 flex items-center justify-center"
+                  className="w-9 h-9 rounded-lg border flex items-center justify-center text-muted transition-all duration-200 bg-surface"
+                  style={{ borderColor: 'var(--border-color)' }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent)';
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = 'color-mix(in srgb, var(--accent) 30%, transparent)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--muted)';
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border-color)';
+                  }}
                 >
                   {s.icon}
                 </a>
@@ -130,7 +138,7 @@ const Footer: React.FC = () => {
 
           {/* Navigation */}
           <div>
-            <h4 className="flex items-center gap-2 text-[14px] text-muted mb-4"><span className="marker-square" aria-hidden="true" />Navigate</h4>
+            <h4 className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-4">Navigate</h4>
             <ul className="space-y-2.5">
               {navLinks.map((link) => (
                 <li key={link.path}>
@@ -147,7 +155,7 @@ const Footer: React.FC = () => {
 
           {/* Contact + Admin */}
           <div>
-            <h4 className="flex items-center gap-2 text-[14px] text-muted mb-4"><span className="marker-square" aria-hidden="true" />Contact</h4>
+            <h4 className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-4">Contact</h4>
             <ul className="space-y-2.5">
               <li>
                 <a
@@ -178,7 +186,7 @@ const Footer: React.FC = () => {
                 <div>
                   <button
                     onClick={() => setShowLogin(!showLogin)}
-                    className="text-[12px] text-muted-2 hover:text-muted transition-colors"
+                    className="text-[11px] text-muted-2 hover:text-muted transition-colors tracking-widest uppercase"
                   >
                     {showLogin ? '— close' : 'Admin'}
                   </button>
@@ -223,7 +231,8 @@ const Footer: React.FC = () => {
                       <button
                         type="submit"
                         disabled={isLoggingIn}
-                        className="btn btn--solid w-full py-2 text-xs disabled:opacity-50"
+                        className="w-full py-2 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+                        style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
                       >
                         {isLoggingIn ? 'Signing in…' : 'Login'}
                       </button>

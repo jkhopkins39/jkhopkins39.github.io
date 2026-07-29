@@ -425,9 +425,21 @@ export default function Quote() {
       {/* ─── Hero ─────────────────────────────────────────── */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 pb-8">
         <motion.div custom={0} initial="hidden" animate="show" variants={fadeUp}>
-          <h1 className="text-[clamp(2.1rem,4.4vw,3.7rem)] text-ink">
-            Let's Talk<br />
-            <span className="text-accent">Through It</span>
+          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Websites, AI & Enterprise Solutions</span>
+          <h1 className="mt-2 text-[clamp(2.4rem,5vw,4.2rem)] font-bold leading-[1.1] tracking-tight text-ink">
+            Let's Talk{" "}
+            <span
+              className="italic"
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Through It
+            </span>
           </h1>
           <p className="text-muted text-lg leading-relaxed mt-4">
             Pick a track below — self-serve pricing for standard projects, or a strategy call for enterprise AI and data work.
@@ -491,8 +503,8 @@ export default function Quote() {
                   </div>
                   {!isEmpty && (
                     <div className="text-right">
-                      {oneTime > 0 && <p className="text-[13px] tabular-nums font-semibold text-ink">{fmtUSD(oneTime)}</p>}
-                      {monthly > 0 && <p className="text-[11px] tabular-nums text-accent">{fmtUSD(monthly)}/mo</p>}
+                      {oneTime > 0 && <p className="text-[13px] font-mono font-semibold text-ink">{fmtUSD(oneTime)}</p>}
+                      {monthly > 0 && <p className="text-[11px] font-mono text-accent">{fmtUSD(monthly)}/mo</p>}
                     </div>
                   )}
                 </div>
@@ -566,7 +578,7 @@ export default function Quote() {
                                 </div>
                                 <span className="font-medium text-ink text-[14px]">{field.label}</span>
                               </div>
-                              <span className="text-[12px] tabular-nums text-muted flex-none">{field.price}</span>
+                              <span className="text-[12px] font-mono text-muted flex-none">{field.price}</span>
                             </button>
                           );
                         }
@@ -688,7 +700,7 @@ export default function Quote() {
           <motion.div key="enterprise" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
             <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-center mb-10">
-                <h2 className="text-3xl md:text-4xl text-ink mb-3">
+                <h2 className="text-3xl md:text-4xl font-bold text-ink mb-3" style={{ fontFamily: "'DM Serif Display', serif" }}>
                   Schedule a Strategy Call
                 </h2>
                 <p className="text-muted text-lg max-w-xl mx-auto">
@@ -699,7 +711,7 @@ export default function Quote() {
               <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
                 {/* ─── Compact capability list ───────────────────── */}
                 <div>
-                  <p className="text-[14px] text-muted font-medium mb-3">What we can build</p>
+                  <p className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-3">What we can build</p>
                   <div className="space-y-2">
                     {ENTERPRISE_SOLUTIONS.map((s, i) => {
                       const isOpen = openEnterpriseId === s.id;
