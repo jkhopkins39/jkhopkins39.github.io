@@ -259,6 +259,109 @@ a {
   transition: translate var(--speed, 0.5s) var(--easing, ease) !important;
 }
 
+/* ─── Hero CTA buttons ───────────────────────────────────── */
+/* Shared mechanic: a colored panel wipes in from the left behind the
+   label, the label rides forward, and the arrow slides out. */
+.cta-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.75rem;
+  font-size: 15px;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.cta-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: translateX(-101%);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cta-btn:hover,
+.cta-btn:focus-visible {
+  transform: translateY(-2px);
+}
+
+.cta-btn:hover::before,
+.cta-btn:focus-visible::before {
+  transform: translateX(0);
+}
+
+.cta-btn:active {
+  transform: translateY(0);
+}
+
+.cta-btn__arrow {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cta-btn:hover .cta-btn__arrow,
+.cta-btn:focus-visible .cta-btn__arrow {
+  transform: translateX(4px);
+}
+
+/* Solid — deepens and lifts into a glow */
+.cta-btn--solid {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-weight: 600;
+}
+
+.cta-btn--solid::before {
+  background: linear-gradient(120deg, var(--accent-light) 0%, var(--accent) 70%);
+}
+
+.cta-btn--solid:hover,
+.cta-btn--solid:focus-visible {
+  box-shadow: 0 10px 32px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+/* Ghost — the accent fills it in on hover */
+.cta-btn--ghost {
+  border: 1px solid var(--border-color);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.cta-btn--ghost::before {
+  background: var(--accent);
+}
+
+.cta-btn--ghost:hover,
+.cta-btn--ghost:focus-visible {
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-btn,
+  .cta-btn::before,
+  .cta-btn__arrow {
+    transition-duration: 0.01ms;
+  }
+
+  .cta-btn:hover,
+  .cta-btn:focus-visible {
+    transform: none;
+  }
+}
+
 /* ─── Hero portfolio showcase (home) ─────────────────────── */
 .hero-showcase-stack {
   isolation: isolate;

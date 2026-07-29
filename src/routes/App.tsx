@@ -53,6 +53,49 @@ const cardItem: Variants = {
   },
 };
 
+/** What Hoppy Tech actually sells — mirrors the /quote catalog and enterprise solutions. */
+const OFFERINGS = [
+  {
+    title: "Websites & online stores",
+    desc: "A fast, modern site you actually own — built, hosted, and maintained.",
+    includes: ["Site build", "E-commerce", "Booking & appointments", "Business email", "SEO foundation"],
+    anchor: "Sites from $750",
+    cta: { label: "Build a quote", path: "/quote" },
+    accent: "var(--accent)",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    title: "AI that does a job",
+    desc: "Not a demo — assistants and models wired into the work your team repeats every day.",
+    includes: ["Site chatbot", "RAG knowledgebase", "Document & vision pipelines", "Forecasting dashboards"],
+    anchor: "Chatbot from $250",
+    cta: { label: "Explore AI solutions", path: "/quote" },
+    accent: BRAND.skyBlue,
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Automation & custom software",
+    desc: "The glue work — connecting the tools you already pay for, and building what doesn't exist yet.",
+    includes: ["Workflow automation", "API integrations", "Custom dashboards", "Mobile apps"],
+    anchor: "Scoped on a call",
+    cta: { label: "Start a conversation", path: "/contact" },
+    accent: BRAND.orange,
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+      </svg>
+    ),
+  },
+];
+
 function HomePage() {
   const navigate = useNavigate();
   const glowRef = useRef<HTMLDivElement>(null);
@@ -70,208 +113,181 @@ function HomePage() {
 
   return (
     <>
-      {/* ─── Nameplate ───────────────────────────────────── */}
+      {/* ─── Hero ────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-14 lg:pt-20 pb-10 relative z-[5]">
-          <motion.h1
-            custom={1}
-            initial="hidden"
-            animate="show"
-            variants={fadeUp}
-            className="font-bold tracking-tight text-ink leading-[1.02]"
-          >
-            <span className="block text-[clamp(2.75rem,7.5vw,6rem)]">Hoppy Tech</span>
-            <span
-              className="italic block text-[clamp(1.9rem,5vw,4.1rem)]"
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                paddingRight: "0.1em",
-                paddingBottom: "0.08em",
-              }}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 lg:pt-16 pb-10 grid grid-cols-1 lg:grid-cols-12 lg:gap-x-10 lg:items-center">
+          {/* Nameplate + positioning + CTAs */}
+          <div className="relative z-[5] lg:col-span-6 min-w-0">
+            <motion.h1
+              custom={1}
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              className="font-bold tracking-tight text-ink leading-[1.04]"
             >
-              Web, AI, and Custom Solutions
-            </span>
-          </motion.h1>
-          <motion.div
-            custom={2}
-            initial="hidden"
-            animate="show"
-            variants={fadeUp}
-            className="mt-8 h-px w-full"
-            style={{ backgroundColor: "var(--border-color)" }}
-          />
+              <span className="block text-[clamp(2.6rem,6vw,4.9rem)]">Hoppy Tech</span>
+              <span
+                className="italic block text-[clamp(1.65rem,3.9vw,3.05rem)]"
+                style={{
+                  fontFamily: "'DM Serif Display', Georgia, serif",
+                  background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  paddingRight: "0.1em",
+                  paddingBottom: "0.08em",
+                }}
+              >
+                Web, AI, and Custom Solutions
+              </span>
+            </motion.h1>
+
+            <motion.p
+              custom={2}
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              className="text-muted text-lg leading-relaxed max-w-xl mt-6"
+            >
+              We bridge the gap between what your business needs and what new technology
+              can actually do — websites, AI, and custom software, built to fit how you
+              already work. First consultation is free.
+            </motion.p>
+
+            <motion.div
+              custom={3}
+              initial="hidden"
+              animate="show"
+              variants={fadeUp}
+              className="flex flex-wrap gap-4 mt-8"
+            >
+              <button onClick={() => navigate("/contact")} className="cta-btn cta-btn--solid">
+                Get in Touch
+                <svg className="cta-btn__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              <button onClick={() => navigate("/portfolio")} className="cta-btn cta-btn--ghost">
+                See Our Work
+                <svg className="cta-btn__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </motion.div>
+          </div>
+
+          {/* Work showcase */}
+          <div className="lg:col-span-6 min-w-0 mt-12 lg:mt-0">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+              className="hero-showcase-stack relative z-0 flex items-center justify-center min-w-0"
+            >
+              <HeroPortfolioShowcase />
+            </motion.div>
+          </div>
         </div>
 
-        {/* Ambient glow */}
+        {/* Ambient glow — text column only */}
         <div
           ref={glowRef}
-          className="hero-ambient-glow pointer-events-none absolute inset-0 z-[1]"
+          className="hero-ambient-glow pointer-events-none absolute inset-y-0 left-0 w-full lg:w-1/2 z-[1]"
           style={{
             background: "radial-gradient(ellipse 38% 32% at 30% 40%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)",
           }}
         />
       </section>
 
-      {/* ─── Index + work rail ─────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-x-12">
-          {/* Service index */}
-          <div className="order-2 lg:order-1 lg:col-span-7 min-w-0">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="pt-10 mb-10"
-            >
-              <span className="text-accent text-[13px] font-mono uppercase tracking-widest">What I do</span>
-              <h2 className="mt-2 text-3xl md:text-4xl font-bold text-ink">
-                Turning ideas into{" "}
-                <span style={{ fontFamily: "'DM Serif Display', serif" }} className="italic">real products</span>
-              </h2>
-            </motion.div>
+      {/* ─── What we build ─────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">What we build</span>
+          <h2 className="mt-2 text-3xl md:text-4xl font-bold text-ink">
+            Three ways we{" "}
+            <span style={{ fontFamily: "'DM Serif Display', serif" }} className="italic">work together</span>
+          </h2>
+        </motion.div>
 
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={cardsContainer}
+        >
+          {OFFERINGS.map((row) => (
             <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
-              variants={cardsContainer}
-            >
-              {[
-                {
-                  icon: (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  ),
-                  title: "Web Development",
-                  desc: "Web applications using React, Node.js, and modern tooling. Simple, fast, and reliable.",
-                  accent: "var(--accent)",
-                },
-                {
-                  icon: (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  ),
-                  title: "AI & Machine Learning",
-                  desc: "Integrating intelligence into applications using TensorFlow, PyTorch, and Gemini; I believe AI is the next frontier!",
-                  accent: BRAND.skyBlue,
-                  learnMore: "/quote",
-                },
-                {
-                  icon: (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                    </svg>
-                  ),
-                  title: "Software Engineering",
-                  desc: "My goal is to deliver the best product possible. Every solution is customized to fit your needs, with best practices, clean documentation, and ongoing support.",
-                  accent: BRAND.orange,
-                },
-              ].map((row) => (
-                <motion.div
-                  key={row.title}
-                  variants={cardItem}
-                  className="group grid grid-cols-[auto_1fr] gap-x-5 py-7 border-t transition-colors duration-300"
-                  style={{ borderColor: "var(--border-color)" }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border-hover)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border-color)";
-                  }}
-                >
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center"
-                    style={{ background: `${row.accent}22`, color: row.accent }}
-                  >
-                    {row.icon}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-ink text-xl">{row.title}</h3>
-                    <p className="text-muted text-[15px] leading-relaxed mt-1.5 max-w-prose">{row.desc}</p>
-                    {"learnMore" in row && row.learnMore && (
-                      <button
-                        onClick={() => navigate(row.learnMore as string)}
-                        className="mt-3 flex items-center gap-1.5 text-[13px] font-medium transition-all duration-200 hover:gap-2.5"
-                        style={{ color: row.accent }}
-                      >
-                        Learn more
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Studio note + primary CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="border-t pt-8 flex flex-col sm:flex-row sm:items-start gap-6"
+              key={row.title}
+              variants={cardItem}
+              className="grid grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_auto] gap-x-5 gap-y-4 py-8 border-t transition-colors duration-300"
               style={{ borderColor: "var(--border-color)" }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border-hover)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border-color)";
+              }}
             >
-              <p className="text-muted text-[15px] leading-relaxed max-w-xl flex-1">
-                Hoppy Tech is a technology company founded with the goal
-                of bridging the gap between business needs and new, emerging technologies.
-                Reach out today for a free consultation so we can meet you where you are
-                and elevate your operations.
-              </p>
-              <button
-                onClick={() => navigate("/contact")}
-                className="px-7 py-3.5 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] text-[15px] flex-none"
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-none"
                 style={{
-                  backgroundColor: "var(--accent)",
-                  color: "var(--accent-foreground)",
-                  boxShadow: "0 0 0 0 color-mix(in srgb, var(--accent) 30%, transparent)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 30px color-mix(in srgb, var(--accent) 30%, transparent)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+                  background: `color-mix(in srgb, ${row.accent} 13%, transparent)`,
+                  color: row.accent,
                 }}
               >
-                Get in Touch
-              </button>
-            </motion.div>
-          </div>
+                {row.icon}
+              </div>
 
-          {/* Work rail */}
-          <div className="order-1 lg:order-2 lg:col-span-5 min-w-0">
-            <div className="lg:sticky lg:top-20 pt-6 lg:pt-10">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-                className="hero-showcase-stack relative z-0 flex items-center justify-center min-w-0"
-              >
-                <HeroPortfolioShowcase />
-              </motion.div>
-              <div className="flex justify-center mt-4">
+              <div className="min-w-0">
+                <h3 className="font-semibold text-ink text-xl">{row.title}</h3>
+                <p className="text-muted text-[15px] leading-relaxed mt-1.5 max-w-prose">{row.desc}</p>
+                <ul className="flex flex-wrap gap-2 mt-4">
+                  {row.includes.map((item) => (
+                    <li
+                      key={item}
+                      className="text-[12.5px] text-muted px-2.5 py-1 rounded-lg border"
+                      style={{ borderColor: "var(--border-color)", backgroundColor: "var(--surface-alpha)" }}
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="col-start-2 md:col-start-3 flex flex-row md:flex-col md:items-end items-center gap-x-5 gap-y-2 md:text-right flex-none">
+                <span className="text-[13px] font-mono text-ink whitespace-nowrap">{row.anchor}</span>
                 <button
-                  onClick={() => navigate("/portfolio")}
-                  className="flex items-center gap-1.5 text-[13px] font-medium text-accent transition-all duration-200 hover:gap-2.5"
+                  onClick={() => navigate(row.cta.path)}
+                  className="flex items-center gap-1.5 text-[13px] font-medium transition-all duration-200 hover:gap-2.5 whitespace-nowrap"
+                  style={{ color: row.accent }}
                 >
-                  Browse all projects
+                  {row.cta.label}
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="border-t pt-6 text-muted text-[14px]"
+          style={{ borderColor: "var(--border-color)" }}
+        >
+          Logos, brand identity, and visual design are handled in-house by Bella — add them to any
+          project.
+        </motion.p>
       </section>
 
       {/* ─── CTA banner ──────────────────────────────────────── */}
@@ -294,7 +310,9 @@ function HomePage() {
             >
               Let's build something great.
             </h2>
-            <p className="text-muted mt-2 text-lg">Open to freelance and collaboration opportunities.</p>
+            <p className="text-muted mt-2 text-lg">
+            Free first consultation — tell us what you're working on.
+          </p>
           </div>
           <div className="flex flex-wrap gap-4 flex-none">
             <a
