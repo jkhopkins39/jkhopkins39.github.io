@@ -63,8 +63,8 @@ const Refer: React.FC = () => {
     }
   };
 
-  const inputClass = 'w-full px-4 py-3.5 bg-surface-2 border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle focus:bg-surface-3 transition-all text-sm';
-  const labelClass = 'block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2';
+  const inputClass = 'w-full px-4 py-3.5 bg-surface-2 border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle transition-all text-sm';
+  const labelClass = 'block text-[13px] text-muted font-medium mb-2';
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
@@ -75,21 +75,9 @@ const Refer: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Referral Program</span>
-          <h1 className="mt-2 text-[clamp(2.2rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight">
-            Know a business we{' '}
-            <span
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontStyle: 'italic',
-                background: 'linear-gradient(135deg, var(--accent-light), var(--accent))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              can help?
-            </span>
+          <h1 className="text-[clamp(2rem,4.4vw,3.6rem)]">
+            Know a business<br />
+            <span className="text-accent">we can help?</span>
           </h1>
           <p className="mt-4 text-muted text-lg leading-relaxed max-w-xl">
             Introduce us to a business that needs to optimize, automate, or level up their tech.
@@ -128,7 +116,7 @@ const Refer: React.FC = () => {
                 </div>
 
                 {/* Divider: Your info */}
-                <p className="text-[11px] uppercase tracking-widest text-muted font-semibold pb-1 border-b border-subtle">Your Info</p>
+                <p className="text-[14px] text-muted font-medium pb-2 border-b border-subtle">Your Info</p>
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
@@ -142,7 +130,7 @@ const Refer: React.FC = () => {
                 </div>
 
                 {/* Divider: Their info */}
-                <p className="text-[11px] uppercase tracking-widest text-muted font-semibold pb-1 border-b border-subtle pt-2">The Business</p>
+                <p className="text-[14px] text-muted font-medium pb-2 border-b border-subtle pt-2">The Business</p>
 
                 <div>
                   <label className={labelClass}>Business Name *</label>
@@ -213,7 +201,7 @@ const Refer: React.FC = () => {
           >
             {/* How it works */}
             <div className="p-5 rounded-2xl border border-subtle bg-surface">
-              <h3 className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-4">How It Works</h3>
+              <h3 className="flex items-center gap-2 text-[14px] text-muted mb-4"><span className="marker-square" aria-hidden="true" />How It Works</h3>
               <ol className="space-y-4">
                 {[
                   { step: '1', title: 'Make the intro', desc: 'Drop their business details in the form. That\'s it.' },
@@ -264,7 +252,7 @@ const Refer: React.FC = () => {
 
             {/* Who to refer */}
             <div className="p-5 rounded-2xl border border-subtle bg-surface">
-              <h3 className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-3">Good Candidates</h3>
+              <h3 className="flex items-center gap-2 text-[14px] text-muted mb-3"><span className="marker-square" aria-hidden="true" />Good Candidates</h3>
               <ul className="space-y-2">
                 {[
                   'Local businesses with outdated websites',

@@ -43,10 +43,7 @@ const ThankYou: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.25 }}
           >
-            <h1
-              className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-ink"
-              style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontStyle: 'italic' }}
-            >
+            <h1 className="text-4xl md:text-5xl mb-4 text-ink">
               Message received!
             </h1>
             <p className="text-muted text-lg leading-relaxed mb-3">

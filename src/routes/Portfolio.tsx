@@ -167,7 +167,7 @@ const Portfolio: React.FC = () => {
     : projects.filter(p => p.category === selectedCategory);
 
   const inputClass = "w-full px-4 py-3 bg-surface border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle transition-colors text-sm";
-  const labelClass = "block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2";
+  const labelClass = "block text-[13px] text-muted font-medium mb-2";
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
@@ -178,21 +178,9 @@ const Portfolio: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Featured work</span>
-          <h1 className="mt-2 text-[clamp(2.2rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight">
-            Projects &{' '}
-            <span
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontStyle: "italic",
-                background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Case Studies
-            </span>
+          <h1 className="text-[clamp(2rem,4.4vw,3.6rem)]">
+            Projects &amp;<br />
+            <span className="text-accent">Case Studies</span>
           </h1>
           <p className="mt-4 text-muted text-lg leading-relaxed max-w-2xl">
             A selection of projects I've built!
@@ -411,7 +399,7 @@ const Portfolio: React.FC = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-[var(--canvas)] via-transparent to-transparent opacity-70" />
                       <div className="absolute bottom-3 left-3">
                         <span
-                          className="px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider"
+                          className="px-2.5 py-1 rounded text-[11px] font-semibold"
                           style={{ background: bg, color }}
                         >
                           {project.category}
@@ -420,7 +408,7 @@ const Portfolio: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col flex-1 p-5 min-h-0">
-                      <div className="h-[2px] w-8 mb-4 rounded-full flex-none" style={{ background: color }} />
+                      <div className="h-[2px] w-8 mb-4 flex-none" style={{ background: color }} />
                       <h3 className="font-semibold text-[17px] text-ink mb-1.5 leading-snug flex-none">{project.title}</h3>
 
                       <div className="flex-1 min-h-0 mb-4">
