@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, supabaseConfigured } from '../lib/supabase';
-import { TENANTS, getTenantConfig, buildCallbackUrl, type TenantConfig } from '../lib/portal';
+import { TENANTS, OWNER_APPS, getTenantConfig, buildCallbackUrl, type TenantConfig } from '../lib/portal';
 import { BRAND } from '../config/brandColors';
 
 /* ── Types ────────────────────────────────────────────────── */
@@ -141,6 +141,7 @@ function LoginForm({ onError }: { onError: (msg: string) => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [localError, setLocalError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -157,6 +158,19 @@ function LoginForm({ onError }: { onError: (msg: string) => void }) {
       onError('');
     }
     setLoading(false);
+  };
+
+  const handlePasskey = async () => {
+    if (!supabase) return;
+    setPasskeyLoading(true);
+    setLocalError('');
+    const { error } = await supabase.auth.signInWithPasskey();
+    if (error) {
+      const cancelled = /abort|cancel|not allowed/i.test(error.message);
+      setLocalError(cancelled ? 'Passkey sign-in was cancelled.' : error.message);
+      onError('');
+    }
+    setPasskeyLoading(false);
   };
 
   return (
@@ -226,7 +240,7 @@ function LoginForm({ onError }: { onError: (msg: string) => void }) {
         </div>
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || passkeyLoading}
           className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all mt-1 disabled:opacity-60"
           style={{
             background: BRAND.skyBlue,
@@ -236,6 +250,26 @@ function LoginForm({ onError }: { onError: (msg: string) => void }) {
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+
+      <div className="flex items-center gap-3 my-5">
+        <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
+        <span className="text-xs" style={{ color: 'var(--muted-2)' }}>or</span>
+        <div className="flex-1 h-px" style={{ background: 'var(--border-color)' }} />
+      </div>
+
+      <button
+        type="button"
+        onClick={handlePasskey}
+        disabled={loading || passkeyLoading}
+        className="w-full rounded-lg py-2.5 text-sm font-semibold transition-all disabled:opacity-60"
+        style={{
+          background: 'var(--surface-2)',
+          color: 'var(--ink)',
+          border: '1px solid var(--border-color)',
+        }}
+      >
+        {passkeyLoading ? 'Waiting for passkey…' : 'Sign in with passkey'}
+      </button>
     </div>
   );
 }
@@ -294,11 +328,22 @@ function HubView({ session, user, onSignOut }: { session: Session; user: User; o
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const [sendError, setSendError] = useState('');
+  const [passkeyStatus, setPasskeyStatus] = useState('');
+  const [passkeyBusy, setPasskeyBusy] = useState(false);
 
-  const handleOpen = (tenant: TenantConfig) => {
+  const handleOpen = (dest: { callbackUrl: string }) => {
     if (!session.access_token || !session.refresh_token) return;
-    const dest = buildCallbackUrl(tenant, session.access_token, session.refresh_token);
-    window.open(dest, '_blank', 'noopener,noreferrer');
+    const url = buildCallbackUrl(dest, session.access_token, session.refresh_token);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleRegisterPasskey = async () => {
+    if (!supabase) return;
+    setPasskeyBusy(true);
+    setPasskeyStatus('');
+    const { error } = await supabase.auth.registerPasskey();
+    setPasskeyStatus(error ? error.message : 'Passkey registered for hoppytech.com.');
+    setPasskeyBusy(false);
   };
 
   const handleBroadcast = async (e: React.FormEvent) => {
@@ -353,6 +398,19 @@ function HubView({ session, user, onSignOut }: { session: Session; user: User; o
             {user.email}
           </span>
           <button
+            type="button"
+            onClick={handleRegisterPasskey}
+            disabled={passkeyBusy}
+            className="text-sm px-3 py-1.5 rounded-lg transition-all disabled:opacity-60"
+            style={{
+              background: 'var(--surface-2)',
+              color: 'var(--muted)',
+              border: '1px solid var(--border-color)',
+            }}
+          >
+            {passkeyBusy ? 'Waiting…' : 'Register passkey'}
+          </button>
+          <button
             onClick={onSignOut}
             className="text-sm px-3 py-1.5 rounded-lg transition-all"
             style={{
@@ -368,10 +426,35 @@ function HubView({ session, user, onSignOut }: { session: Session; user: User; o
 
       {/* Client grid */}
       <main className="px-6 py-8 max-w-5xl mx-auto">
+        {passkeyStatus ? (
+          <p className="text-sm mb-6" style={{ color: passkeyStatus.includes('registered') ? '#4ade80' : '#f87171' }}>
+            {passkeyStatus}
+          </p>
+        ) : null}
+
         <div className="mb-8">
           <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--ink)' }}>
-            Client Dashboards
+            Internal
           </h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>
+            Sign in here with a passkey, then open LedgerFlow — the session transfers.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+          {OWNER_APPS.map(app => (
+            <ClientCard
+              key={app.key}
+              tenant={app}
+              onOpen={() => handleOpen(app)}
+            />
+          ))}
+        </div>
+
+        <div className="mb-8">
+          <h2 className="font-display text-2xl font-semibold" style={{ color: 'var(--ink)' }}>
+            Client Dashboards
+          </h2>
           <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>
             Open any client's admin panel. Your session transfers automatically.
           </p>
@@ -469,7 +552,7 @@ function HubView({ session, user, onSignOut }: { session: Session; user: User; o
 
 /* ── Client card ──────────────────────────────────────────── */
 
-function ClientCard({ tenant, onOpen }: { tenant: TenantConfig; onOpen: () => void }) {
+function ClientCard({ tenant, onOpen }: { tenant: { key: string; label: string; description: string }; onOpen: () => void }) {
   const [hovered, setHovered] = useState(false);
 
   return (

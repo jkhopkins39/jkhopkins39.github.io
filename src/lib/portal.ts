@@ -77,13 +77,32 @@ export function getTenantConfig(tenantKey: string): TenantConfig | null {
   return TENANTS[tenantKey as TenantKey] ?? null;
 }
 
+/** Owner-only internal apps shown on the portal hub (not client tenants). */
+export interface OwnerApp {
+  key: string;
+  label: string;
+  description: string;
+  adminUrl: string;
+  callbackUrl: string;
+}
+
+export const OWNER_APPS: OwnerApp[] = [
+  {
+    key: 'ledgerflow',
+    label: 'LedgerFlow',
+    description: 'Invoices, expenses, 1099s, tax reserve',
+    adminUrl: 'https://ledgerflow-pi.vercel.app',
+    callbackUrl: 'https://ledgerflow-pi.vercel.app/auth/callback',
+  },
+];
+
 /** Builds the cross-domain redirect URL for SSO session transfer. */
 export function buildCallbackUrl(
-  tenant: TenantConfig,
+  dest: { callbackUrl: string },
   accessToken: string,
   refreshToken: string,
 ): string {
-  const url = new URL(tenant.callbackUrl);
+  const url = new URL(dest.callbackUrl);
   url.searchParams.set('access_token', accessToken);
   url.searchParams.set('refresh_token', refreshToken);
   return url.toString();
