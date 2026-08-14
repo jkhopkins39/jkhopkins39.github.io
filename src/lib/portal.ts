@@ -91,8 +91,8 @@ export const OWNER_APPS: OwnerApp[] = [
     key: 'ledgerflow',
     label: 'LedgerFlow',
     description: 'Invoices, expenses, 1099s, tax reserve',
-    adminUrl: 'https://ledgerflow-pi.vercel.app',
-    callbackUrl: 'https://ledgerflow-pi.vercel.app/auth/callback',
+    adminUrl: 'https://ledgerflow-eta-ten.vercel.app',
+    callbackUrl: 'https://ledgerflow-eta-ten.vercel.app/auth/callback',
   },
 ];
 
