@@ -1,9 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer";
 import { contactInfo } from "../config/socialLinks";
 
-const LAST_UPDATED = "July 18, 2026";
+const LAST_UPDATED = "August 21, 2026";
 
 const sections: { title: string; body: React.ReactNode }[] = [
   {
@@ -12,9 +13,12 @@ const sections: { title: string; body: React.ReactNode }[] = [
       <>
         <p>
           Hoppy Tech LLC (&ldquo;Hoppy Tech,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
-          &ldquo;our&rdquo;) provides web development and AI solutions. This Privacy
-          Policy explains how we collect, use, and protect information when you
-          interact with hoppytech.com or respond to our advertising.
+          &ldquo;our&rdquo;) provides web development, AI solutions, and products
+          such as <strong className="text-ink font-medium">Hoppy Social</strong>{" "}
+          (Facebook Page messaging and posting automation). This Privacy Policy
+          explains how we collect, use, and protect information when you
+          interact with hoppytech.com, respond to our advertising, or use Hoppy
+          Social and related Meta integrations.
         </p>
       </>
     ),
@@ -75,6 +79,44 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
+    title: "Hoppy Social and Meta Platform data",
+    body: (
+      <>
+        <p>
+          If you connect Facebook Login / Login for Business to use{" "}
+          <strong className="text-ink font-medium">Hoppy Social</strong>, we
+          receive and store Platform Data needed to operate that product, which
+          may include:
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            Identifiers for your Messenger conversation with our Hoppy Social
+            Page (such as a PSID) so we can map you to your connected business
+            Page
+          </li>
+          <li>
+            Facebook Page IDs and names you authorize, and{" "}
+            <strong className="text-ink font-medium">Page access tokens</strong>{" "}
+            used only to act on the Page you connected (publish content, reply
+            to comments/messages, and manage subscriptions you enable)
+          </li>
+          <li>
+            Message and comment content you or Page visitors send in contexts we
+            process (including text and media attachments you send as commands),
+            plus drafts, approvals, and delivery status for actions you request
+          </li>
+        </ul>
+        <p>
+          We use that data only to provide Hoppy Social: receive your commands,
+          draft or post to your connected Page, automate approved customer
+          replies, and keep the service secure and reliable. We do not sell
+          Platform Data. We do not use it to post to personal Facebook profiles.
+          Each operator is bound to exactly one connected Page in our systems.
+        </p>
+      </>
+    ),
+  },
+  {
     title: "How we use information",
     body: (
       <>
@@ -85,6 +127,9 @@ const sections: { title: string; body: React.ReactNode }[] = [
           <li>
             Operate, improve, and secure our website — including screening form
             submissions for spam and abuse
+          </li>
+          <li>
+            Provide Hoppy Social and related Meta integrations you authorize
           </li>
           <li>
             Measure advertising performance (for example, whether a Google Ads
@@ -114,10 +159,15 @@ const sections: { title: string; body: React.ReactNode }[] = [
           <strong className="text-ink font-medium">Supabase</strong> (database
           storage), <strong className="text-ink font-medium">Resend</strong>{" "}
           (email delivery), <strong className="text-ink font-medium">Vercel</strong>{" "}
-          (hosting and analytics), and{" "}
+          (hosting and analytics),{" "}
           <strong className="text-ink font-medium">Google</strong> (the Gemini AI
-          models behind our chat assistant and form screening). Those providers
-          process data only as needed to provide their services to us.
+          models behind our chat assistant and form screening),{" "}
+          <strong className="text-ink font-medium">Anthropic</strong> (AI models
+          used to draft Hoppy Social replies), and{" "}
+          <strong className="text-ink font-medium">Meta / Facebook</strong>{" "}
+          (Graph API and webhooks for Pages and Messenger when you use Hoppy
+          Social). Those providers process data only as needed to provide their
+          services to us.
         </p>
         <p>
           We may disclose information if required by law or to protect our
@@ -184,13 +234,34 @@ const sections: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
-    title: "Your choices",
+    title: "Your choices and data deletion",
     body: (
       <>
         <p>
-          You may email us to ask what personal information we hold about you,
-          request a correction, or ask us to delete inquiry data we no longer
-          need to keep. We will respond within a reasonable time.
+          You may email{" "}
+          <a
+            href={`mailto:${contactInfo.email}`}
+            className="text-accent hover:text-accent-light transition-colors underline-offset-2 hover:underline"
+          >
+            {contactInfo.email}
+          </a>{" "}
+          to ask what personal information we hold about you, request a
+          correction, or ask us to delete your data. For step-by-step deletion
+          instructions (including Hoppy Social / Facebook Login data), see our{" "}
+          <Link
+            to="/data-deletion"
+            className="text-accent hover:text-accent-light transition-colors underline-offset-2 hover:underline"
+          >
+            Data Deletion Instructions
+          </Link>
+          .
+        </p>
+        <p>
+          To disconnect Facebook authorization, use Facebook{" "}
+          <strong className="text-ink font-medium">
+            Settings &amp; privacy → Settings → Apps and websites
+          </strong>
+          , then email us if you also want data removed from our systems.
         </p>
       </>
     ),
@@ -239,7 +310,7 @@ const Privacy: React.FC = () => {
           <p className="mt-2 text-muted-2 text-xs">Last updated: {LAST_UPDATED}</p>
           <p className="mt-4 text-muted text-base sm:text-lg leading-relaxed max-w-2xl">
             How Hoppy Tech LLC collects and uses information from business
-            inquiries — simply and transparently.
+            inquiries and products like Hoppy Social — simply and transparently.
           </p>
         </motion.div>
       </div>

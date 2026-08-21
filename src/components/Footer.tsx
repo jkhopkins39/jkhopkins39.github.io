@@ -271,6 +271,12 @@ const Footer: React.FC = () => {
             >
               Privacy Policy
             </Link>
+            <Link
+              to="/data-deletion"
+              className="text-muted-2 text-xs hover:text-ink transition-colors duration-200"
+            >
+              Data Deletion
+            </Link>
             <p className="text-muted-2 text-xs">
               Built with React & TypeScript
             </p>

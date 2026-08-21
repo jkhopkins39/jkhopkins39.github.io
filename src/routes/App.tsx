@@ -15,6 +15,7 @@ import Sorry from "./Sorry";
 import Refer from "./Refer";
 import Quote from "./Quote";
 import Privacy from "./Privacy";
+import DataDeletion from "./DataDeletion";
 import Footer from "../components/Footer";
 import { socialLinks, contactInfo } from "../config/socialLinks";
 import { BRAND } from "../config/brandColors";
@@ -371,6 +372,7 @@ function SiteLayout() {
           <Route path="/refer" element={<Refer />} />
           <Route path="/quote" element={<Quote />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/data-deletion" element={<DataDeletion />} />
         </Routes>
       </main>
       <Chatbot />
