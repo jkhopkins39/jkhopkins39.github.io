@@ -362,6 +362,48 @@ a {
   }
 }
 
+/* ─── Client logo strip (home) ───────────────────────────── */
+.client-logo-link {
+  border-color: var(--border-color);
+  background: var(--surface-alpha);
+}
+
+.client-logo-link:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-alpha-h);
+}
+
+.client-logo-img {
+  opacity: 0.88;
+  filter: grayscale(18%) brightness(1.05);
+  transition: opacity 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+}
+
+[data-theme="light"] .client-logo-img {
+  filter: grayscale(24%) brightness(0.92) contrast(1.05);
+}
+
+.client-logo-link:hover .client-logo-img {
+  opacity: 1;
+  filter: grayscale(0%) brightness(1.08);
+}
+
+[data-theme="light"] .client-logo-link:hover .client-logo-img {
+  filter: grayscale(0%) brightness(1);
+}
+
+/* JB Recycling mark ships on white — blend into the tile */
+.client-logo-img[src*="jb-recycling"] {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0.35rem 0.5rem;
+}
+
+[data-theme="light"] .client-logo-img[src*="jb-recycling"] {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(2, 48, 71, 0.08);
+}
+
 /* ─── Hero portfolio showcase (home) ─────────────────────── */
 .hero-showcase-stack {
   isolation: isolate;

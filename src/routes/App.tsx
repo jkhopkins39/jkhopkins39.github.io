@@ -4,6 +4,7 @@ import { motion, type Variants } from "framer-motion";
 import NavBar from "../components/NavBar";
 import Chatbot from "../components/Chatbot";
 import HeroPortfolioShowcase from "../components/HeroPortfolioShowcase";
+import ClientLogoStrip from "../components/ClientLogoStrip";
 import About from "./About";
 import Blog from "./Blog";
 import Contact from "./Contact";
@@ -200,8 +201,10 @@ function HomePage() {
         />
       </section>
 
+      <ClientLogoStrip />
+
       {/* ─── What we build ─────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 lg:pt-24 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
