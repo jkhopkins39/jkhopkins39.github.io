@@ -4,10 +4,10 @@ export interface ClientLogo {
   name: string;
   href?: string;
   src?: string;
-  /** Taller logos (e.g. square marks) */
+  /** Visual scale inside the tile */
   scale?: number;
-  /** Inline mark instead of an image file */
-  variant?: "joshua";
+  /** Extra class on the <img> for per-logo styling */
+  imgClass?: string;
 }
 
 export const CLIENT_LOGOS: ClientLogo[] = [
@@ -15,28 +15,27 @@ export const CLIENT_LOGOS: ClientLogo[] = [
     name: "Cornerstone Coatings",
     href: "https://cornerstonecoatingsga.com",
     src: "/images/client-logos/cornerstone.png",
-    scale: 1.05,
+    scale: 1.42,
+    imgClass: "client-logo-img--cornerstone",
   },
   {
     name: "Illuminated Productions",
     href: "https://illuminated-prod.vercel.app",
     src: "/images/client-logos/illuminated.png",
+    scale: 1.02,
+    imgClass: "client-logo-img--illuminated",
   },
   {
     name: "JB Recycling",
-    src: "/images/client-logos/jb-recycling.jpg",
-    scale: 1.1,
-  },
-  {
-    name: "The Joshua 1:9 Law Firm",
-    href: "https://joshua19lawfirm.com",
-    variant: "joshua",
-    scale: 0.95,
+    src: "/images/client-logos/jb-recycling.png",
+    scale: 1.08,
   },
   {
     name: "Krush Windshield Repair",
     href: "https://krushwindshieldrepair.com",
     src: "/images/client-logos/krush.png",
+    scale: 1.05,
+    imgClass: "client-logo-img--krush",
   },
   {
     name: "Watch Trading Post",
@@ -51,42 +50,22 @@ export const CLIENT_LOGOS: ClientLogo[] = [
   },
 ];
 
-function JoshuaMark() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <span
-        aria-hidden
-        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#0f172a] text-[#e5b866] ring-1 ring-[#d4a853]/35"
-      >
-        <span className="font-serif text-base font-semibold leading-none">J</span>
-        <span className="ml-0.5 text-[8px] font-semibold tracking-wider text-[#d4a853]">1:9</span>
-      </span>
-      <span className="min-w-0 text-left leading-tight">
-        <span className="block font-serif text-[11px] font-semibold text-ink sm:text-xs">Joshua 1:9</span>
-        <span className="block text-[9px] font-medium text-muted sm:text-[10px]">Law Firm</span>
-      </span>
-    </div>
-  );
-}
-
 function LogoMark({ client }: { client: ClientLogo }) {
   const inner = (
-  <div
-    className="client-logo-mark flex h-11 w-full max-w-[168px] items-center justify-center sm:h-12"
-    style={{ transform: client.scale ? `scale(${client.scale})` : undefined }}
-  >
-    {client.variant === "joshua" ? (
-      <JoshuaMark />
-    ) : client.src ? (
-      <img
-        src={client.src}
-        alt={client.name}
-        loading="lazy"
-        decoding="async"
-        className="client-logo-img max-h-full max-w-full object-contain"
-      />
-    ) : null}
-  </div>
+    <div
+      className="client-logo-mark flex h-11 w-full max-w-[168px] items-center justify-center sm:h-12"
+      style={{ transform: client.scale ? `scale(${client.scale})` : undefined }}
+    >
+      {client.src ? (
+        <img
+          src={client.src}
+          alt={client.name}
+          loading="lazy"
+          decoding="async"
+          className={`client-logo-img max-h-full max-w-full object-contain ${client.imgClass ?? ""}`}
+        />
+      ) : null}
+    </div>
   );
 
   if (client.href) {
@@ -148,7 +127,7 @@ export default function ClientLogoStrip() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 sm:gap-4"
+          className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 sm:gap-4"
         >
           {CLIENT_LOGOS.map((client) => (
             <li key={client.name}>
