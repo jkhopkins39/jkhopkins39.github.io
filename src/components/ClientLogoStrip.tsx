@@ -8,6 +8,8 @@ export interface ClientLogo {
   scale?: number;
   /** Extra class on the <img> for per-logo styling */
   imgClass?: string;
+  /** Short message shown on hover (e.g. coming soon) */
+  hoverMessage?: string;
 }
 
 export const CLIENT_LOGOS: ClientLogo[] = [
@@ -15,20 +17,21 @@ export const CLIENT_LOGOS: ClientLogo[] = [
     name: "Cornerstone Coatings",
     href: "https://cornerstonecoatingsga.com",
     src: "/images/client-logos/cornerstone.png",
-    scale: 1.42,
+    scale: 1.68,
     imgClass: "client-logo-img--cornerstone",
   },
   {
     name: "Illuminated Productions",
     href: "https://illuminated-prod.vercel.app",
     src: "/images/client-logos/illuminated.png",
-    scale: 1.02,
+    scale: 1.32,
     imgClass: "client-logo-img--illuminated",
   },
   {
     name: "JB Recycling",
     src: "/images/client-logos/jb-recycling.png",
-    scale: 1.08,
+    scale: 1.35,
+    hoverMessage: "Coming soon…",
   },
   {
     name: "Krush Windshield Repair",
@@ -53,7 +56,7 @@ export const CLIENT_LOGOS: ClientLogo[] = [
 function LogoMark({ client }: { client: ClientLogo }) {
   const inner = (
     <div
-      className="client-logo-mark flex h-11 w-full max-w-[168px] items-center justify-center sm:h-12"
+      className="client-logo-mark flex h-14 w-full max-w-[210px] items-center justify-center sm:h-16"
       style={{ transform: client.scale ? `scale(${client.scale})` : undefined }}
     >
       {client.src ? (
@@ -68,26 +71,34 @@ function LogoMark({ client }: { client: ClientLogo }) {
     </div>
   );
 
+  const tooltip = client.hoverMessage ? (
+    <span className="client-logo-tooltip" role="tooltip">
+      {client.hoverMessage}
+    </span>
+  ) : null;
+
   if (client.href) {
     return (
       <a
         href={client.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="client-logo-link group flex min-h-[72px] items-center justify-center rounded-xl border px-4 py-5 transition-colors duration-200"
+        className="client-logo-link group flex min-h-[96px] items-center justify-center rounded-xl border px-4 py-5 transition-colors duration-200"
         aria-label={`${client.name} (opens in new tab)`}
       >
         {inner}
+        {tooltip}
       </a>
     );
   }
 
   return (
     <div
-      className="client-logo-link flex min-h-[72px] items-center justify-center rounded-xl border px-4 py-5"
-      aria-label={client.name}
+      className={`client-logo-link group relative flex min-h-[96px] items-center justify-center rounded-xl border px-4 py-5${client.hoverMessage ? " cursor-default" : ""}`}
+      aria-label={client.hoverMessage ? `${client.name} — ${client.hoverMessage}` : client.name}
     >
       {inner}
+      {tooltip}
     </div>
   );
 }
@@ -127,7 +138,7 @@ export default function ClientLogoStrip() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 sm:gap-4"
+          className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 sm:gap-4 [&>li]:overflow-visible"
         >
           {CLIENT_LOGOS.map((client) => (
             <li key={client.name}>

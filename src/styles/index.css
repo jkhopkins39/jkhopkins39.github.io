@@ -365,12 +365,48 @@ a {
 /* ─── Client logo strip (home) ───────────────────────────── */
 .client-logo-link {
   border-color: var(--border-color);
-  background: var(--surface-alpha);
+  background: #fff;
 }
 
 .client-logo-link:hover {
   border-color: var(--border-hover);
-  background: var(--surface-alpha-h);
+  background: #fff;
+}
+
+.client-logo-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  z-index: 10;
+  translate: -50% 4px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--canvas);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, translate 0.2s ease;
+}
+
+.client-logo-link:hover .client-logo-tooltip,
+.client-logo-link:focus-within .client-logo-tooltip {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.client-logo-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50%;
+  border: 5px solid transparent;
+  border-top-color: var(--border-color);
 }
 
 .client-logo-img {
@@ -393,24 +429,13 @@ a {
 }
 
 .client-logo-img--cornerstone {
-  max-height: 3.25rem;
+  max-height: 5.25rem;
 }
 
 @media (min-width: 640px) {
   .client-logo-img--cornerstone {
-    max-height: 3.5rem;
+    max-height: 5.75rem;
   }
-}
-
-/* Dark marks on light tiles so they read on the navy canvas */
-.client-logo-link:has(.client-logo-img--illuminated),
-.client-logo-link:has(.client-logo-img--krush) {
-  background: rgba(250, 249, 240, 0.94);
-}
-
-[data-theme="light"] .client-logo-link:has(.client-logo-img--illuminated),
-[data-theme="light"] .client-logo-link:has(.client-logo-img--krush) {
-  background: #fff;
 }
 
 .client-logo-img--illuminated,

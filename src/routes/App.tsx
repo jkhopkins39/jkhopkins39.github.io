@@ -59,7 +59,7 @@ const cardItem: Variants = {
 const OFFERINGS = [
   {
     title: "Websites & online stores",
-    desc: "A fast, modern site you actually own — built, hosted, and maintained.",
+    desc: "A fast and modern site built, hosted, and maintained by Hoppy Tech.",
     includes: ["Site build", "E-commerce", "Booking & appointments", "Business email", "SEO foundation"],
     anchor: "Sites from $750",
     cta: { label: "Build a quote", path: "/quote" },
@@ -72,7 +72,7 @@ const OFFERINGS = [
   },
   {
     title: "AI that does a job",
-    desc: "Not a demo — assistants and models wired into the work your team repeats every day.",
+    desc: "Models wired into the work your team repeats every day.",
     includes: ["Site chatbot", "RAG knowledgebase", "Document & vision pipelines", "Forecasting dashboards"],
     anchor: "Chatbot from $250",
     cta: { label: "Explore AI solutions", path: "/quote" },
@@ -85,7 +85,7 @@ const OFFERINGS = [
   },
   {
     title: "Automation & custom software",
-    desc: "The glue work — connecting the tools you already pay for, and building what doesn't exist yet.",
+    desc: "Connecting the tools you already pay for and building what doesn't exist yet.",
     includes: ["Workflow automation", "API integrations", "Custom dashboards", "Mobile apps"],
     anchor: "Scoped on a call",
     cta: { label: "Start a conversation", path: "/contact" },
@@ -151,8 +151,8 @@ function HomePage() {
               variants={fadeUp}
               className="text-muted text-lg leading-relaxed max-w-xl mt-6"
             >
-              We bridge the gap between what your business needs and what new technology
-              can actually do — websites, AI, and custom software, built to fit how you
+              We bridge the gap between modern business needs and modern technology.
+              Websites, AI, and custom software, built to fit how you
               already work. First consultation is free.
             </motion.p>
 
@@ -289,7 +289,7 @@ function HomePage() {
           className="border-t pt-6 text-muted text-[14px]"
           style={{ borderColor: "var(--border-color)" }}
         >
-          Logos, brand identity, and visual design are handled in-house by Bella — add them to any
+          Logos, brand identity, and visual design are handled in-house by our designers. Add them to any
           project.
         </motion.p>
       </section>
@@ -315,7 +315,7 @@ function HomePage() {
               Let's build something great.
             </h2>
             <p className="text-muted mt-2 text-lg">
-            Free first consultation — tell us what you're working on.
+            Free first consultation. Tell us what you're working on.
           </p>
           </div>
           <div className="flex flex-wrap gap-4 flex-none">
